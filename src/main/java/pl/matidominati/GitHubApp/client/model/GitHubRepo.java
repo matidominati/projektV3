@@ -1,9 +1,9 @@
-package pl.matidominati.GitHubApp.model;
+package pl.matidominati.GitHubApp.client.model;
 
 import lombok.Data;
 
 @Data
-public class GithubRepo {
+public class GitHubRepo {
     private Long id;
     private String name;
     private String full_name;

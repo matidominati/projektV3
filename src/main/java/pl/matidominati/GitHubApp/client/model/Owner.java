@@ -1,4 +1,4 @@
-package pl.matidominati.GitHubApp.model;
+package pl.matidominati.GitHubApp.client.model;
 
 import lombok.Data;
 
