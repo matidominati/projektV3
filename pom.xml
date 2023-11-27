@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>pl.matidominati</groupId>
-	<artifactId>projektV3</artifactId>
+	<artifactId>GitHubApp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>projektV3</name>
 	<description>service for connecting to the github api</description>
