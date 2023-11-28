@@ -4,8 +4,8 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.matidominati.GitHubApp.client.GitHubFeignClient;
-import pl.matidominati.GitHubApp.exception.DataNotFoundException;
 import pl.matidominati.GitHubApp.client.model.GitHubRepo;
+import pl.matidominati.GitHubApp.exception.DataNotFoundException;
 
 import java.util.Collections;
 import java.util.List;

@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class Controller {
 
-    private final ServiceImpl service;
+    private final ServiceImpl serviceImpl;
 
     @Operation(summary = "Get repository details", tags = "GitHubApp")
     @ApiResponses(value = {
@@ -36,7 +36,7 @@ public class Controller {
     })
     @GetMapping("/{owner}/{repo}")
     public GitHubRepo getRepositoryDetails(@PathVariable String owner, @PathVariable String repo) {
-        return service.getRepositoryDetails(owner, repo);
+        return serviceImpl.getRepositoryDetails(owner, repo);
     }
 
     @Operation(summary = "Get user repositories", tags = "GitHubApp")
@@ -50,6 +50,6 @@ public class Controller {
     })
     @GetMapping("/{owner}")
     public List<GitHubRepo> getRepositories(@PathVariable String owner) {
-        return service.getRepository(owner);
+        return serviceImpl.getRepository(owner);
     }
 }
