@@ -15,10 +15,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ServiceImpl {
 
-    private final GitHubFeignClient githubFeignClient;
+    private final GitHubFeignClient gitHubFeignClient;
 
     public GitHubRepo getRepositoryDetails(String owner, String repositoryName) {
-        Optional<GitHubRepo> githubRepo = githubFeignClient.getRepositoryDetails(owner, repositoryName);
+        Optional<GitHubRepo> githubRepo = gitHubFeignClient.getRepositoryDetails(owner, repositoryName);
         if (githubRepo.isEmpty()) {
             throw new DataNotFoundException("Incorrect owner or repository name provided");
         }
@@ -27,7 +27,7 @@ public class ServiceImpl {
 
     public List<GitHubRepo> getRepository(String username) {
         try {
-            return githubFeignClient.getRepositories(username).orElse(Collections.emptyList());
+            return gitHubFeignClient.getRepositories(username).orElse(Collections.emptyList());
         } catch (FeignException.NotFound e) {
             throw new DataNotFoundException("User not found");
         }
