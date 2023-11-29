@@ -8,8 +8,8 @@
 //import org.springframework.boot.test.context.SpringBootTest;
 //import org.springframework.http.MediaType;
 //import org.springframework.test.web.servlet.MockMvc;
-//import pl.matidominati.GitHubApp.client.model.GitHubRepo;
-//import pl.matidominati.GitHubApp.client.model.Owner;
+//import pl.matidominati.GitHubApp.client.model.Repo;
+//import pl.matidominati.GitHubApp.client.model.GitHubOwner;
 //
 //import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 //import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -27,13 +27,13 @@
 //
 //    @BeforeEach
 //    void setup() {
-//        Owner owner = Owner.builder()
+//        GitHubOwner gitHubOwner = GitHubOwner.builder()
 //                .id(1L)
 //                .login("owner123")
 //                .html_url("xyz123")
 //                .type("user")
 //                .build();
-//        GitHubRepo gitHubRepo = GitHubRepo.builder()
+//        Repo gitHubRepo = Repo.builder()
 //                .default_branch("xxx")
 //                .id(2L)
 //                .name("repo")
@@ -43,7 +43,7 @@
 //    @Test
 //    void getRepositoryDetails_ValidOwnerAndRepo_ReturnsRepoDetails() throws Exception {
 //
-//        mockMvc.perform(get("/github-details/{owner}/{repo}"))
+//        mockMvc.perform(get("/github-details/{gitHubOwner}/{repo}"))
 //                .andDo(print())
 //                .andExpect(status().isOk())
 //                .andExpect(content().contentType(MediaType.APPLICATION_JSON))

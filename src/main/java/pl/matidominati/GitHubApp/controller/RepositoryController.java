@@ -7,49 +7,57 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import pl.matidominati.GitHubApp.model.dto.RepoResponseDto;
 import org.springframework.http.MediaType;
 import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import pl.matidominati.GitHubApp.client.model.GitHubRepo;
-import pl.matidominati.GitHubApp.service.ServiceImpl;
+import org.springframework.web.bind.annotation.*;
+import pl.matidominati.GitHubApp.client.model.GitHubRepository;
+import pl.matidominati.GitHubApp.service.GitHubService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/github-details")
 @RequiredArgsConstructor
-public class Controller {
+public class RepositoryController {
 
-    private final ServiceImpl serviceImpl;
+    private final GitHubService gitHubService;
 
     @Operation(summary = "Get repository details", tags = "GitHubApp")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = GitHubRepo.class))}),
+                            schema = @Schema(implementation = GitHubRepository.class))}),
             @ApiResponse(responseCode = "404", description = "Data not found",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @GetMapping("/{owner}/{repo}")
-    public GitHubRepo getRepositoryDetails(@PathVariable String owner, @PathVariable String repo) {
-        return serviceImpl.getRepositoryDetails(owner, repo);
+    @GetMapping("/repositories/{gitHubOwner}/{repoName}")
+    public RepoResponseDto getRepositoryDetails(@PathVariable String gitHubOwner, @PathVariable String repoName) {
+        return gitHubService.getRepositoryDetails(gitHubOwner, repoName);
     }
 
     @Operation(summary = "Get user repositories", tags = "GitHubApp")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            array = @ArraySchema(schema = @Schema(implementation = GitHubRepo.class)))}),
+                            array = @ArraySchema(schema = @Schema(implementation = GitHubRepository.class)))}),
             @ApiResponse(responseCode = "404", description = "Data not found",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @GetMapping("/{owner}")
-    public List<GitHubRepo> getRepositories(@PathVariable String owner) {
-        return serviceImpl.getRepository(owner);
+    @GetMapping("/repositories/{gitHubOwner}")
+    public List<RepoResponseDto> getRepositories(@PathVariable String gitHubOwner) {
+        return gitHubService.getRepositories(gitHubOwner);
     }
+
+    @GetMapping("/local/repositories/{owner}/{repoName}")
+    public RepoResponseDto getLocalRepository(@PathVariable String owner, @PathVariable String repoName) {
+        return gitHubService.getRepoDetails(owner, repoName);
+    }
+
+    @PostMapping("/repositories/{owner}/{repoName}")
+    public RepoResponseDto saveRepository(@PathVariable String owner, @PathVariable String repoName) {
+        return gitHubService.saveRepoDetails(owner, repoName);
+    }
+
 }
