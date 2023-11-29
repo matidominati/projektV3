@@ -14,6 +14,7 @@ public interface RepoMapper {
     @Mapping(source = "stargazersCount", target = "stars")
     RepoResponseDto mapToDto (GitHubRepository gitHubRepository);
 
+    @Mapping(source = "repoName", target = "fullName")
     RepoResponseDto mapToDto (Repo repo);
     RepoRequestDto mapToRequest (RepoResponseDto repoResponseDto);
 }

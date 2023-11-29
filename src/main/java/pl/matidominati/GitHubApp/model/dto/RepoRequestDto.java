@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class RepoRequestDto {
-    private final String fullName;
-    private final String description;
-    private final String cloneUrl;
-    private final int stars;
-    private final LocalDateTime date;
-    private final Owner owner;
+    private String fullName;
+    private String description;
+    private String cloneUrl;
+    private int stars;
+    private LocalDateTime createdAt;
+    private Owner owner;
 }

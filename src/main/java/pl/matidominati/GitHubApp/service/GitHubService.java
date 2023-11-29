@@ -45,10 +45,10 @@ public class GitHubService {
 
     @Transactional
     public RepoResponseDto saveRepoDetails(String owner, String repositoryName) {
-        var repoRequestDto = repoMapper.mapToRequest(getRepoDetails(owner, repositoryName));
+        var repoRequestDto = repoMapper.mapToRequest(getRepositoryDetails(owner, repositoryName));
         var repo = new Repo();
         repo.setDescription(repoRequestDto.getDescription());
-        repo.setCreatedAt(repoRequestDto.getDate());
+        repo.setCreatedAt(repoRequestDto.getCreatedAt());
         repo.setStars(repoRequestDto.getStars());
         repo.setCloneUrl(repoRequestDto.getCloneUrl());
         repo.setRepoName(repoRequestDto.getFullName());
