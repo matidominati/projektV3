@@ -12,20 +12,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class GitHubRepository {
     private final Long id;
-    private final String name;
     @JsonProperty("full_name")
     private final String fullName;
-    private final String language;
-    @JsonProperty("default_branch")
-    private final String defaultBranch;
+    private final String name;
     @JsonProperty("clone_url")
     private final String cloneUrl;
     private final String description;
-    private final int watchers;
-    @JsonProperty("has_downloads")
-    private final boolean hasDownloads;
-    private final boolean archived;
-    private final boolean disabled;
+    @JsonProperty("owner")
     private final GitHubOwner gitHubOwner;
     @JsonProperty("stargazers_count")
     private final int stargazersCount;

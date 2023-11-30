@@ -6,8 +6,8 @@
 //import org.mockito.InjectMocks;
 //import org.mockito.Mock;
 //import org.mockito.junit.jupiter.MockitoExtension;
-//import pl.matidominati.GitHubApp.client.GitHubFeignClient;
-//import pl.matidominati.GitHubApp.client.model.Repo;
+//import pl.matidominati.GitHubApp.client.GitHubClient;
+//import pl.matidominati.GitHubApp.client.model.RepositoryDetails;
 //import pl.matidominati.GitHubApp.exception.DataNotFoundException;
 //
 //import java.util.List;
@@ -21,7 +21,7 @@
 //public class ServiceTest {
 //
 //    @Mock
-//    private GitHubFeignClient gitHubFeignClient;
+//    private GitHubClient gitHubFeignClient;
 //
 //    @InjectMocks
 //    private GitHubService service;
@@ -31,11 +31,11 @@
 //
 //        String gitHubOwner = "xyz";
 //        String repositoryName = "abc";
-//        Repo gitHubRepo = new Repo();
+//        RepositoryDetails gitHubRepo = new RepositoryDetails();
 //
 //        when(gitHubFeignClient.getRepositoryDetails(gitHubOwner, repositoryName)).thenReturn(Optional.of(gitHubRepo));
 //
-//        Repo result = service.getRepositoryDetails(gitHubOwner, repositoryName);
+//        RepositoryDetails result = service.getRepositoryDetails(gitHubOwner, repositoryName);
 //
 //        assertNotNull(result);
 //        assertEquals(gitHubRepo, result);
@@ -62,12 +62,12 @@
 //    void getRepository_ValidUsername_ReturnsRepoList() {
 //
 //        String username = "abc";
-//        Repo gitHubRepo = new Repo();
-//        List<Repo> repoList = List.of(gitHubRepo, gitHubRepo);
+//        RepositoryDetails gitHubRepo = new RepositoryDetails();
+//        List<RepositoryDetails> repoList = List.of(gitHubRepo, gitHubRepo);
 //
 //        when(gitHubFeignClient.getRepositories(username)).thenReturn(Optional.of(repoList));
 //
-//        List<Repo> result = service.getRepository(username);
+//        List<RepositoryDetails> result = service.getRepository(username);
 //
 //        assertNotNull(result);
 //        assertEquals(repoList, result);

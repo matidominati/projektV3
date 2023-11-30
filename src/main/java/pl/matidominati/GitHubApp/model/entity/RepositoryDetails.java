@@ -3,44 +3,42 @@ package pl.matidominati.GitHubApp.model.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import pl.matidominati.GitHubApp.model.entity.compositeKey.RepositoryId;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
+@IdClass(RepositoryId.class)
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Repo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RepositoryDetails {
     @NotNull
     @NotEmpty
-    private String repoName;
+    @Id
+    private String repositoryName;
+    @Id
+    private String ownerUsername;
     private String description;
     private String cloneUrl;
     private int stars;
     private LocalDateTime createdAt;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "owner_id")
-    private Owner owner;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Repo that = (Repo) o;
-        return id != null && Objects.equals(id, that.id);
+        RepositoryDetails that = (RepositoryDetails) o;
+        return repositoryName != null && ownerUsername != null
+                && Objects.equals(repositoryName, that.repositoryName)
+                && Objects.equals(ownerUsername,that.ownerUsername);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(repositoryName, ownerUsername);
     }
 }

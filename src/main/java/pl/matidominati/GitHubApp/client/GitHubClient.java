@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @FeignClient(value = "gitHub", url = "${github.api.url}")
-public interface GitHubFeignClient {
+public interface GitHubClient {
 
     @GetMapping("/repos/{gitHubOwner}/{repo}")
     Optional<GitHubRepository> getRepositoryDetails(@PathVariable String gitHubOwner, @PathVariable String repo);

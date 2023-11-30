@@ -8,7 +8,7 @@
 //import org.springframework.boot.test.context.SpringBootTest;
 //import org.springframework.http.MediaType;
 //import org.springframework.test.web.servlet.MockMvc;
-//import pl.matidominati.GitHubApp.client.model.Repo;
+//import pl.matidominati.GitHubApp.client.model.RepositoryDetails;
 //import pl.matidominati.GitHubApp.client.model.GitHubOwner;
 //
 //import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,7 +33,7 @@
 //                .html_url("xyz123")
 //                .type("user")
 //                .build();
-//        Repo gitHubRepo = Repo.builder()
+//        RepositoryDetails gitHubRepo = RepositoryDetails.builder()
 //                .default_branch("xxx")
 //                .id(2L)
 //                .name("repo")
