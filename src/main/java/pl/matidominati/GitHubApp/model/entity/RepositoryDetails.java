@@ -19,9 +19,10 @@ public class RepositoryDetails {
     @NotNull
     @NotEmpty
     @Id
-    private String repositoryName;
+    private String name;
     @Id
     private String ownerUsername;
+    private String fullName;
     private String description;
     private String cloneUrl;
     private int stars;
@@ -32,13 +33,13 @@ public class RepositoryDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RepositoryDetails that = (RepositoryDetails) o;
-        return repositoryName != null && ownerUsername != null
-                && Objects.equals(repositoryName, that.repositoryName)
+        return name != null && ownerUsername != null
+                && Objects.equals(name, that.name)
                 && Objects.equals(ownerUsername,that.ownerUsername);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(repositoryName, ownerUsername);
+        return Objects.hash(name, ownerUsername);
     }
 }

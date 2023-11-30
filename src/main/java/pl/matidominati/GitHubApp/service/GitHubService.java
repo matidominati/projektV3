@@ -49,7 +49,8 @@ public class GitHubService {
         repo.setCreatedAt(repoRequestDto.getCreatedAt());
         repo.setStars(repoRequestDto.getStars());
         repo.setCloneUrl(repoRequestDto.getCloneUrl());
-        repo.setRepositoryName(repoRequestDto.getFullName());
+        repo.setFullName(repoRequestDto.getFullName());
+        repo.setName(repoRequestDto.getName());
         repo.setOwnerUsername(repoRequestDto.getOwnerUsername());
         repoRepository.save(repo);
         return repositoryMapper.mapToResponseDto(repo);

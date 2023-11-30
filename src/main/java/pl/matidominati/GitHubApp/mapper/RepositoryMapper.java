@@ -17,7 +17,6 @@ public interface RepositoryMapper {
     RepositoryPojo mapToPojo(GitHubRepository gitHubRepository);
 
     RepoResponseDto pojoToDto(RepositoryPojo repositoryPojo);
-    @Mapping(source = "repositoryName", target = "fullName")
     RepoResponseDto mapToResponseDto(RepositoryDetails repositoryDetails);
     RepoRequestDto mapToRequest (RepositoryPojo repositoryPojo);
 }

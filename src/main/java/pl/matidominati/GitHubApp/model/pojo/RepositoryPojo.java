@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class RepositoryPojo {
     private String fullName;
+    private String name;
     private String cloneUrl;
     private String description;
     private String ownerUsername;

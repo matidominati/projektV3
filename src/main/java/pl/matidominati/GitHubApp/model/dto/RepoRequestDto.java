@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class RepoRequestDto {
+    private String name;
     private String fullName;
     private String description;
     private String cloneUrl;
