@@ -19,4 +19,6 @@ public interface RepositoryMapper {
     RepoResponseDto pojoToDto(RepositoryPojo repositoryPojo);
     RepoResponseDto mapToResponseDto(RepositoryDetails repositoryDetails);
     RepoRequestDto mapToRequest (RepositoryPojo repositoryPojo);
+    RepositoryPojo RepositoryDetailsToPojo(RepositoryDetails repositoryDetails);
+    RepositoryDetails PojoToRepositoryDetails(RepositoryPojo repositoryPojo);
 }

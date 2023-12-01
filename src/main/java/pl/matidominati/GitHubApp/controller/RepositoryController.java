@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import pl.matidominati.GitHubApp.client.model.GitHubRepository;
+import pl.matidominati.GitHubApp.model.pojo.RepositoryPojo;
 import pl.matidominati.GitHubApp.service.GitHubService;
 
 import java.util.List;
@@ -60,4 +61,14 @@ public class RepositoryController {
         return gitHubService.saveRepoDetails(owner, repoName);
     }
 
+    @PutMapping("/repositories/{owner}/{repoName}")
+    public RepoResponseDto editRepository(@PathVariable String owner, @PathVariable String repoName,
+                                          @RequestBody RepositoryPojo updatedDetails) {
+        return gitHubService.editRepoDetails(owner, repoName, updatedDetails);
+    }
+
+    @DeleteMapping("/repositories/{owner}/{repoName}")
+    public void deleteRepository(@PathVariable String owner, @PathVariable String repoName){
+        gitHubService.deleteRepositoryDetails(owner, repoName);
+    }
 }

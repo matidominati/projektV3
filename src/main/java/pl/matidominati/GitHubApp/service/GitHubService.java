@@ -13,7 +13,9 @@ import pl.matidominati.GitHubApp.model.entity.RepositoryDetails;
 import pl.matidominati.GitHubApp.model.pojo.RepositoryPojo;
 import pl.matidominati.GitHubApp.repository.RepoRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +64,37 @@ public class GitHubService {
         return repositoryMapper.mapToResponseDto(repoDetails);
     }
 
+    @Transactional
+    public RepoResponseDto editRepoDetails(String ownerUsername, String repositoryName, RepositoryPojo repositoryPojo) {
+        var repositoryToEdit = getDetails(ownerUsername, repositoryName);
+        if (repositoryPojo.getFullName() != null && !repositoryToEdit.getFullName().equals(repositoryPojo.getFullName())) {
+            repositoryToEdit.setFullName(repositoryPojo.getFullName());
+        }
+        if (repositoryPojo.getDescription() != null && !repositoryToEdit.getDescription().equals(repositoryPojo.getDescription())) {
+            repositoryToEdit.setDescription(repositoryPojo.getDescription());
+        }
+        if (repositoryPojo.getCloneUrl() != null && !repositoryToEdit.getCloneUrl().equals(repositoryPojo.getCloneUrl())) {
+            repositoryToEdit.setCloneUrl(repositoryPojo.getCloneUrl());
+        }
+        if (repositoryToEdit.getStars() != repositoryPojo.getStars()) {
+            repositoryToEdit.setStars(repositoryPojo.getStars());
+        }
+        if (repositoryPojo.getCreatedAt() != null && !repositoryToEdit.getCreatedAt().equals(repositoryPojo.getCreatedAt())
+                && !repositoryPojo.getCreatedAt().isAfter(LocalDateTime.now())) {
+            repositoryToEdit.setCreatedAt(repositoryPojo.getCreatedAt());
+        }
+        var repoToSave = repositoryMapper.PojoToRepositoryDetails(repositoryToEdit);
+        repoRepository.save(repoToSave);
+        return repositoryMapper.pojoToDto(repositoryPojo);
+    }
+
+    @Transactional
+    public void deleteRepositoryDetails(String ownerUsername, String repositoryName) {
+        RepositoryDetails repositoryToDelete = repoRepository.findByOwnerUsernameAndRepositoryName(ownerUsername, repositoryName)
+                .orElseThrow(() -> new DataNotFoundException("Incorrect username or repository name provided."));
+        repoRepository.delete(repositoryToDelete);
+    }
+
     public RepositoryPojo getRepositoryPojo(String owner, String repositoryName) {
         try {
             GitHubRepository githubRepo = gitHubClient.getRepositoryDetails(owner, repositoryName)
@@ -70,5 +103,11 @@ public class GitHubService {
         } catch (FeignException.NotFound e) {
             throw new DataNotFoundException("Repository not found");
         }
+    }
+
+    public RepositoryPojo getDetails(String ownerUsername, String repositoryName) {
+        var repoDetails = repoRepository.findByOwnerUsernameAndRepositoryName(ownerUsername, repositoryName)
+                .orElseThrow(() -> new DataNotFoundException("Incorrect username or repository name provided."));
+        return repositoryMapper.RepositoryDetailsToPojo(repoDetails);
     }
 }
