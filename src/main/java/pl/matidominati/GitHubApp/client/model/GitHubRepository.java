@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
+//@NoArgsConstructor(force = true)
 public class GitHubRepository {
     private final Long id;
     @JsonProperty("full_name")

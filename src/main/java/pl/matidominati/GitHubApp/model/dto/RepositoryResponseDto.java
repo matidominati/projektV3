@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(force = true)
+//@NoArgsConstructor(force = true)
 public class RepositoryResponseDto {
     private final String fullName;
     private final String description;

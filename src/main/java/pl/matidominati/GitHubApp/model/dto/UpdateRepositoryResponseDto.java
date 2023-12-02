@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 @Getter
 @Setter
-@NoArgsConstructor
+//@NoArgsConstructor
 public class UpdateRepositoryResponseDto extends RepositoryResponseDto {
     private boolean fullNameChanged;
     private boolean descriptionChanged;
