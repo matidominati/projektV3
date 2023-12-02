@@ -1,11 +1,13 @@
 package pl.matidominati.GitHubApp.model.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 @Getter
 @Setter
+@NoArgsConstructor
 public class UpdateRepositoryResponseDto extends RepositoryResponseDto {
     private boolean fullNameChanged;
     private boolean descriptionChanged;
