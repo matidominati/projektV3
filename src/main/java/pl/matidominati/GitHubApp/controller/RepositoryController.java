@@ -7,9 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import pl.matidominati.GitHubApp.exception.message.ErrorMessage;
 import pl.matidominati.GitHubApp.model.dto.RepositoryResponseDto;
 import org.springframework.http.MediaType;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import pl.matidominati.GitHubApp.client.model.GitHubRepository;
 import pl.matidominati.GitHubApp.model.dto.UpdateRepositoryResponseDto;
@@ -31,7 +31,7 @@ public class RepositoryController {
                             schema = @Schema(implementation = GitHubRepository.class))}),
             @ApiResponse(responseCode = "404", description = "Data not found",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponse.class))})
+                            schema = @Schema(implementation = ErrorMessage.class))})
     })
     @GetMapping("/repositories/{gitHubOwner}/{repoName}")
     public RepositoryResponseDto getClientRepositoryDetails(@PathVariable String gitHubOwner, @PathVariable String repoName) {
@@ -45,7 +45,7 @@ public class RepositoryController {
                             array = @ArraySchema(schema = @Schema(implementation = GitHubRepository.class)))}),
             @ApiResponse(responseCode = "404", description = "Data not found",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponse.class))})
+                            schema = @Schema(implementation = ErrorMessage.class))})
     })
     @GetMapping("/repositories/{gitHubOwner}")
     public List<RepositoryResponseDto> getClientRepositories(@PathVariable String gitHubOwner) {
@@ -59,7 +59,7 @@ public class RepositoryController {
                             schema = @Schema(implementation = RepositoryResponseDto.class))}),
             @ApiResponse(responseCode = "404", description = "Data not found",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponse.class))})
+                            schema = @Schema(implementation = ErrorMessage.class))})
     })
     @GetMapping("/local/repositories/{owner}/{repoName}")
     public RepositoryResponseDto getLocalRepository(@PathVariable String owner, @PathVariable String repoName) {
@@ -73,7 +73,7 @@ public class RepositoryController {
                             schema = @Schema(implementation = UpdateRepositoryResponseDto.class))}),
             @ApiResponse(responseCode = "409", description = "Data already exists",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponse.class))})
+                            schema = @Schema(implementation = ErrorMessage.class))})
     })
     @PostMapping("/repositories/{owner}/{repoName}")
     public RepositoryResponseDto saveRepository(@PathVariable String owner, @PathVariable String repoName) {
@@ -86,7 +86,7 @@ public class RepositoryController {
                             schema = @Schema(implementation = RepositoryResponseDto.class))}),
             @ApiResponse(responseCode = "400", description = "Data not found",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponse.class))})
+                            schema = @Schema(implementation = ErrorMessage.class))})
     })
     @PutMapping("/repositories/{owner}/{repoName}")
     public RepositoryResponseDto editLocalRepository(@PathVariable String owner, @PathVariable String repoName,
@@ -99,7 +99,7 @@ public class RepositoryController {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "404", description = "Data not found",
                     content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponse.class))})
+                            schema = @Schema(implementation = ErrorMessage.class))})
     })
     @DeleteMapping("/repositories/{owner}/{repoName}")
     public void deleteRepository(@PathVariable String owner, @PathVariable String repoName){

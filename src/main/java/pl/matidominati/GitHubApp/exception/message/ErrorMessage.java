@@ -1,4 +1,4 @@
-package pl.matidominati.GitHubApp.exception;
+package pl.matidominati.GitHubApp.exception.message;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 
 @Getter
 @Builder
-public class ErrorResponse {
+public class ErrorMessage {
     private final String message;
     private final HttpStatus httpStatus;
     private final ZonedDateTime timestamp;
