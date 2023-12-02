@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface RepoRepository extends JpaRepository<RepositoryDetails, Long> {
+public interface LocalRepository extends JpaRepository<RepositoryDetails, Long> {
 
         @Query("SELECT rd " +
             "FROM RepositoryDetails rd " +

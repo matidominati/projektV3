@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import pl.matidominati.GitHubApp.model.dto.RepoResponseDto;
+import pl.matidominati.GitHubApp.model.dto.RepositoryResponseDto;
 import org.springframework.http.MediaType;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +33,8 @@ public class RepositoryController {
                             schema = @Schema(implementation = ErrorResponse.class))})
     })
     @GetMapping("/repositories/{gitHubOwner}/{repoName}")
-    public RepoResponseDto getRepositoryDetails(@PathVariable String gitHubOwner, @PathVariable String repoName) {
-        return gitHubService.getRepositoryDetails(gitHubOwner, repoName);
+    public RepositoryResponseDto getClientRepositoryDetails(@PathVariable String gitHubOwner, @PathVariable String repoName) {
+        return gitHubService.getClientRepositoryDetails(gitHubOwner, repoName);
     }
 
     @Operation(summary = "Get user repositories", tags = "GitHubApp")
@@ -47,28 +47,28 @@ public class RepositoryController {
                             schema = @Schema(implementation = ErrorResponse.class))})
     })
     @GetMapping("/repositories/{gitHubOwner}")
-    public List<RepoResponseDto> getRepositories(@PathVariable String gitHubOwner) {
-        return gitHubService.getRepositories(gitHubOwner);
+    public List<RepositoryResponseDto> getClientRepositories(@PathVariable String gitHubOwner) {
+        return gitHubService.getClientRepositories(gitHubOwner);
     }
 
     @GetMapping("/local/repositories/{owner}/{repoName}")
-    public RepoResponseDto getLocalRepository(@PathVariable String owner, @PathVariable String repoName) {
-        return gitHubService.getRepoDetails(owner, repoName);
+    public RepositoryResponseDto getLocalRepository(@PathVariable String owner, @PathVariable String repoName) {
+        return gitHubService.getLocalRepositoryDetails(owner, repoName);
     }
 
     @PostMapping("/repositories/{owner}/{repoName}")
-    public RepoResponseDto saveRepository(@PathVariable String owner, @PathVariable String repoName) {
-        return gitHubService.saveRepoDetails(owner, repoName);
+    public RepositoryResponseDto saveRepository(@PathVariable String owner, @PathVariable String repoName) {
+        return gitHubService.saveRepositoryDetails(owner, repoName);
     }
 
     @PutMapping("/repositories/{owner}/{repoName}")
-    public RepoResponseDto editRepository(@PathVariable String owner, @PathVariable String repoName,
-                                          @RequestBody RepositoryPojo updatedDetails) {
-        return gitHubService.editRepoDetails(owner, repoName, updatedDetails);
+    public RepositoryResponseDto editLocalRepository(@PathVariable String owner, @PathVariable String repoName,
+                                                     @RequestBody RepositoryPojo updatedDetails) {
+        return gitHubService.editLocalRepositoryDetails(owner, repoName, updatedDetails);
     }
 
     @DeleteMapping("/repositories/{owner}/{repoName}")
     public void deleteRepository(@PathVariable String owner, @PathVariable String repoName){
-        gitHubService.deleteRepositoryDetails(owner, repoName);
+        gitHubService.deleteLocalRepositoryDetails(owner, repoName);
     }
 }

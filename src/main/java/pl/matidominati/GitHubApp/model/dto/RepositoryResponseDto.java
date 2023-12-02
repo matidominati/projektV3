@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class RepoResponseDto {
+public class RepositoryResponseDto {
     private final String fullName;
     private final String description;
     private final String cloneUrl;

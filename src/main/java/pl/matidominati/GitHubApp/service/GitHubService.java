@@ -6,12 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.matidominati.GitHubApp.client.GitHubClient;
 import pl.matidominati.GitHubApp.client.model.GitHubRepository;
+import pl.matidominati.GitHubApp.exception.DataAlreadyExistsException;
 import pl.matidominati.GitHubApp.exception.DataNotFoundException;
 import pl.matidominati.GitHubApp.mapper.RepositoryMapper;
-import pl.matidominati.GitHubApp.model.dto.RepoResponseDto;
+import pl.matidominati.GitHubApp.model.dto.RepositoryResponseDto;
 import pl.matidominati.GitHubApp.model.entity.RepositoryDetails;
 import pl.matidominati.GitHubApp.model.pojo.RepositoryPojo;
-import pl.matidominati.GitHubApp.repository.RepoRepository;
+import pl.matidominati.GitHubApp.repository.LocalRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,22 +22,22 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class GitHubService {
 
-    private final GitHubClient gitHubClient;
-    private final RepositoryMapper repositoryMapper;
-    private final RepoRepository repoRepository;
+    private final GitHubClient client;
+    private final RepositoryMapper mapper;
+    private final LocalRepository repository;
 
-    public RepoResponseDto getRepositoryDetails(String owner, String repositoryName) {
-        RepositoryPojo repositoryPojo = getRepositoryPojo(owner, repositoryName);
-        return repositoryMapper.pojoToDto(repositoryPojo);
+    public RepositoryResponseDto getClientRepositoryDetails(String owner, String repositoryName) {
+        RepositoryPojo repositoryPojo = convertClientRepositoryToPojo(owner, repositoryName);
+        return mapper.mapPojoToDto(repositoryPojo);
     }
 
-    public List<RepoResponseDto> getRepositories(String username) {
+    public List<RepositoryResponseDto> getClientRepositories(String owner) {
         try {
-            List<RepositoryPojo> pojos = gitHubClient.getRepositories(username).stream()
-                    .map(repositoryMapper::mapToPojo)
+            List<RepositoryPojo> repositoryPojos = client.getRepositories(owner).stream()
+                    .map(mapper::mapGitHubRepositoryToPojo)
                     .toList();
-            return pojos.stream()
-                    .map(repositoryMapper::pojoToDto)
+            return repositoryPojos.stream()
+                    .map(mapper::mapPojoToDto)
                     .toList();
         } catch (FeignException.NotFound e) {
             throw new DataNotFoundException("User not found");
@@ -44,70 +45,85 @@ public class GitHubService {
     }
 
     @Transactional
-    public RepoResponseDto saveRepoDetails(String username, String repositoryName) {
-        var repoRequestDto = repositoryMapper.mapToRequest(getRepositoryPojo(username, repositoryName));
-        var repo = new RepositoryDetails();
-        repo.setDescription(repoRequestDto.getDescription());
-        repo.setCreatedAt(repoRequestDto.getCreatedAt());
-        repo.setStars(repoRequestDto.getStars());
-        repo.setCloneUrl(repoRequestDto.getCloneUrl());
-        repo.setFullName(repoRequestDto.getFullName());
-        repo.setName(repoRequestDto.getName());
-        repo.setOwnerUsername(repoRequestDto.getOwnerUsername());
-        repoRepository.save(repo);
-        return repositoryMapper.mapToResponseDto(repo);
+    public RepositoryResponseDto saveRepositoryDetails(String owner, String repositoryName) {
+        var repositoryPojo = convertClientRepositoryToPojo(owner, repositoryName);
+        repository.findByOwnerUsernameAndRepositoryName(owner, repositoryName)
+                .ifPresent(existingRepository -> {
+                    throw new DataAlreadyExistsException("This resource is in the database");
+                });
+        var localRepository = new RepositoryDetails();
+        localRepository.setDescription(repositoryPojo.getDescription());
+        localRepository.setCreatedAt(repositoryPojo.getCreatedAt());
+        localRepository.setStars(repositoryPojo.getStars());
+        localRepository.setCloneUrl(repositoryPojo.getCloneUrl());
+        localRepository.setFullName(repositoryPojo.getFullName());
+        localRepository.setName(repositoryPojo.getName());
+        localRepository.setOwnerUsername(repositoryPojo.getOwnerUsername());
+        repository.save(localRepository);
+        return mapper.mapRepositoryDetailsToResponseDto(localRepository);
     }
 
-    public RepoResponseDto getRepoDetails(String ownerUsername, String repositoryName) {
-        var repoDetails = repoRepository.findByOwnerUsernameAndRepositoryName(ownerUsername, repositoryName)
+    public RepositoryResponseDto getLocalRepositoryDetails(String owner, String repositoryName) {
+        var localRepository = repository.findByOwnerUsernameAndRepositoryName(owner, repositoryName)
                 .orElseThrow(() -> new DataNotFoundException("Incorrect username or repository name provided."));
-        return repositoryMapper.mapToResponseDto(repoDetails);
+        return mapper.mapRepositoryDetailsToResponseDto(localRepository);
     }
 
     @Transactional
-    public RepoResponseDto editRepoDetails(String ownerUsername, String repositoryName, RepositoryPojo repositoryPojo) {
-        var repositoryToEdit = getDetails(ownerUsername, repositoryName);
-        if (repositoryPojo.getFullName() != null && !repositoryToEdit.getFullName().equals(repositoryPojo.getFullName())) {
+    public RepositoryResponseDto editLocalRepositoryDetails(String owner, String repositoryName, RepositoryPojo repositoryPojo) {
+        var repositoryToEdit = getDetails(owner, repositoryName);
+        boolean fullNameChanged = repositoryPojo.getFullName() != null && !Objects.equals(repositoryPojo.getFullName(), repositoryToEdit.getFullName());
+        boolean descriptionChanged = repositoryPojo.getDescription() != null && !Objects.equals(repositoryPojo.getDescription(), repositoryToEdit.getDescription());
+        boolean cloneUrlChanged = repositoryPojo.getCloneUrl() != null && !Objects.equals(repositoryPojo.getCloneUrl(), repositoryToEdit.getCloneUrl());
+        boolean starsChanged = repositoryPojo.getStars() != repositoryToEdit.getStars();
+        boolean createdAtChanged = repositoryPojo.getCreatedAt() != null && !Objects.equals(repositoryPojo.getCreatedAt(), repositoryToEdit.getCreatedAt()) &&
+                !repositoryPojo.getCreatedAt().isAfter(LocalDateTime.now());
+        if (fullNameChanged) {
             repositoryToEdit.setFullName(repositoryPojo.getFullName());
         }
-        if (repositoryPojo.getDescription() != null && !repositoryToEdit.getDescription().equals(repositoryPojo.getDescription())) {
+        if (descriptionChanged) {
             repositoryToEdit.setDescription(repositoryPojo.getDescription());
         }
-        if (repositoryPojo.getCloneUrl() != null && !repositoryToEdit.getCloneUrl().equals(repositoryPojo.getCloneUrl())) {
+        if (cloneUrlChanged) {
             repositoryToEdit.setCloneUrl(repositoryPojo.getCloneUrl());
         }
-        if (repositoryToEdit.getStars() != repositoryPojo.getStars()) {
+        if (starsChanged) {
             repositoryToEdit.setStars(repositoryPojo.getStars());
         }
-        if (repositoryPojo.getCreatedAt() != null && !repositoryToEdit.getCreatedAt().equals(repositoryPojo.getCreatedAt())
-                && !repositoryPojo.getCreatedAt().isAfter(LocalDateTime.now())) {
+        if (createdAtChanged) {
             repositoryToEdit.setCreatedAt(repositoryPojo.getCreatedAt());
         }
-        var repoToSave = repositoryMapper.PojoToRepositoryDetails(repositoryToEdit);
-        repoRepository.save(repoToSave);
-        return repositoryMapper.pojoToDto(repositoryPojo);
+        var repoToSave = mapper.mapPojoToRepositoryDetails(repositoryToEdit);
+        repository.save(repoToSave);
+        var responseDto = mapper.mapPojoToUpdateRepositoryResponseDto(repositoryPojo);
+        responseDto.setFullNameChanged(fullNameChanged);
+        responseDto.setDescriptionChanged(descriptionChanged);
+        responseDto.setCloneUrlChanged(cloneUrlChanged);
+        responseDto.setStarsChanged(starsChanged);
+        responseDto.setCreatedAtChanged(createdAtChanged);
+        return responseDto;
     }
 
     @Transactional
-    public void deleteRepositoryDetails(String ownerUsername, String repositoryName) {
-        RepositoryDetails repositoryToDelete = repoRepository.findByOwnerUsernameAndRepositoryName(ownerUsername, repositoryName)
+    public void deleteLocalRepositoryDetails(String owner, String repositoryName) {
+        RepositoryDetails repositoryToDelete = repository.findByOwnerUsernameAndRepositoryName(owner, repositoryName)
                 .orElseThrow(() -> new DataNotFoundException("Incorrect username or repository name provided."));
-        repoRepository.delete(repositoryToDelete);
+        repository.delete(repositoryToDelete);
     }
 
-    public RepositoryPojo getRepositoryPojo(String owner, String repositoryName) {
+    public RepositoryPojo convertClientRepositoryToPojo(String owner, String repositoryName) {
         try {
-            GitHubRepository githubRepo = gitHubClient.getRepositoryDetails(owner, repositoryName)
+            GitHubRepository gitHubRepository = client.getRepositoryDetails(owner, repositoryName)
                     .orElseThrow(() -> new DataNotFoundException("Repository not found"));
-            return repositoryMapper.mapToPojo(githubRepo);
+            return mapper.mapGitHubRepositoryToPojo(gitHubRepository);
         } catch (FeignException.NotFound e) {
             throw new DataNotFoundException("Repository not found");
         }
     }
 
-    public RepositoryPojo getDetails(String ownerUsername, String repositoryName) {
-        var repoDetails = repoRepository.findByOwnerUsernameAndRepositoryName(ownerUsername, repositoryName)
+    public RepositoryPojo getDetails(String owner, String repositoryName) {
+        var localRepository = repository.findByOwnerUsernameAndRepositoryName(owner, repositoryName)
                 .orElseThrow(() -> new DataNotFoundException("Incorrect username or repository name provided."));
-        return repositoryMapper.RepositoryDetailsToPojo(repoDetails);
+        return mapper.mapRepositoryDetailsToPojo(localRepository);
     }
 }
