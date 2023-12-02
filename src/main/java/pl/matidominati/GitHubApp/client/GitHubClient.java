@@ -8,7 +8,7 @@ import pl.matidominati.GitHubApp.client.model.GitHubRepository;
 import java.util.List;
 import java.util.Optional;
 
-@FeignClient(value = "gitHub", url = "${github.api.url}")
+@FeignClient(value = "gitHub", url = "${app.github.api.url}")
 public interface GitHubClient {
 
     @GetMapping("/repos/{gitHubOwner}/{repo}")

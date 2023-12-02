@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface LocalRepository extends JpaRepository<RepositoryDetails, Long> {
-
         @Query("SELECT rd " +
             "FROM RepositoryDetails rd " +
             "WHERE rd.ownerUsername = :ownerUsername " +

@@ -2,13 +2,12 @@ package pl.matidominati.GitHubApp.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
-//@NoArgsConstructor(force = true)
+@RequiredArgsConstructor
 public class RepositoryResponseDto {
     private final String fullName;
     private final String description;

@@ -2,7 +2,6 @@ package pl.matidominati.GitHubApp.mapper;
 
 import org.mapstruct.Mapping;
 import pl.matidominati.GitHubApp.model.dto.RepositoryResponseDto;
-import pl.matidominati.GitHubApp.model.dto.UpdateRepositoryResponseDto;
 import pl.matidominati.GitHubApp.model.entity.RepositoryDetails;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -20,5 +19,4 @@ public interface RepositoryMapper {
     RepositoryResponseDto mapRepositoryDetailsToResponseDto(RepositoryDetails repositoryDetails);
     RepositoryPojo mapRepositoryDetailsToPojo(RepositoryDetails repositoryDetails);
     RepositoryDetails mapPojoToRepositoryDetails(RepositoryPojo repositoryPojo);
-    UpdateRepositoryResponseDto mapPojoToUpdateRepositoryResponseDto(RepositoryPojo repositoryPojo);
 }
