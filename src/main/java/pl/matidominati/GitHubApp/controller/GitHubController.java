@@ -7,12 +7,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+import pl.matidominati.GitHubApp.client.model.GitHubRepository;
 import pl.matidominati.GitHubApp.exception.message.ErrorMessage;
 import pl.matidominati.GitHubApp.model.dto.RepositoryResponseDto;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import pl.matidominati.GitHubApp.client.model.GitHubRepository;
-import pl.matidominati.GitHubApp.model.pojo.RepositoryPojo;
 import pl.matidominati.GitHubApp.service.GitHubService;
 
 import java.util.List;
