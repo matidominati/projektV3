@@ -23,19 +23,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class LocalRepositoryServiceTest {
+public class RepositoryServiceTest {
 
     private GitHubService clientService;
     private RepositoryMapper mapper;
     private LocalRepository repository;
-    private LocalRepositoryService localService;
+    private RepositoryService localService;
 
     @BeforeEach
     void setup() {
         this.clientService = Mockito.mock(GitHubService.class);
         this.mapper = Mockito.mock(RepositoryMapper.class);
         this.repository = Mockito.mock(LocalRepository.class);
-        this.localService = new LocalRepositoryService(mapper, repository, clientService);
+        this.localService = new RepositoryService(mapper, repository, clientService);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class LocalRepositoryServiceTest {
         when(repository.save(any(RepositoryDetails.class))).thenReturn(repositoryDetails);
         when(mapper.mapRepositoryDetailsToResponseDto(any(RepositoryDetails.class))).thenReturn(responseDto);
 
-        var resultDto = localService.saveRepositoryDetails(gitHubOwner.getLogin(), gitHubRepository.getName());
+        var resultDto = localService.saveRepository(gitHubOwner.getLogin(), gitHubRepository.getName());
 
         assertEquals(resultDto.getFullName(), repositoryDetails.getFullName());
         assertEquals(resultDto.getDescription(), repositoryDetails.getDescription());
@@ -109,7 +109,7 @@ public class LocalRepositoryServiceTest {
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(),
                 repositoryDetails.getName())).thenReturn(Optional.of(repositoryDetails));
 
-        DataAlreadyExistsException exception = assertThrows(DataAlreadyExistsException.class, () -> localService.saveRepositoryDetails(repositoryDetails.getOwnerUsername(), repositoryDetails.getName()));
+        DataAlreadyExistsException exception = assertThrows(DataAlreadyExistsException.class, () -> localService.saveRepository(repositoryDetails.getOwnerUsername(), repositoryDetails.getName()));
         assertEquals("This resource is in the database", exception.getMessage());
     }
 
@@ -135,7 +135,7 @@ public class LocalRepositoryServiceTest {
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(), repositoryDetails.getName())).thenReturn(Optional.of(repositoryDetails));
         when(mapper.mapRepositoryDetailsToResponseDto(any(RepositoryDetails.class))).thenReturn(responseDto);
 
-        var resultDto = localService.getLocalRepositoryDetails(repositoryDetails.getOwnerUsername(), repositoryDetails.getName());
+        var resultDto = localService.getRepository(repositoryDetails.getOwnerUsername(), repositoryDetails.getName());
 
         assertEquals(resultDto.getFullName(), responseDto.getFullName());
         assertEquals(resultDto.getCloneUrl(), responseDto.getCloneUrl());
@@ -158,7 +158,7 @@ public class LocalRepositoryServiceTest {
 
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(), repositoryDetails.getName())).thenReturn(Optional.empty());
 
-        DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> localService.getLocalRepositoryDetails(repositoryDetails.getOwnerUsername(), repositoryDetails.getName()));
+        DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> localService.getRepository(repositoryDetails.getOwnerUsername(), repositoryDetails.getName()));
 
         assertEquals("Incorrect username or repository name provided.", exception.getMessage());
     }
@@ -204,7 +204,7 @@ public class LocalRepositoryServiceTest {
         when(repository.save(any(RepositoryDetails.class))).thenReturn(updatedRepository);
         when(mapper.mapRepositoryDetailsToResponseDto(any(RepositoryDetails.class))).thenReturn(responseDto);
 
-        var result = localService.editLocalRepositoryDetails(originalRepository.getOwnerUsername(), originalRepository.getName(), repositoryPojo);
+        var result = localService.editRepository(originalRepository.getOwnerUsername(), originalRepository.getName(), repositoryPojo);
 
         assertEquals(result.getFullName(), responseDto.getFullName());
         assertEquals(result.getCloneUrl(), responseDto.getCloneUrl());
@@ -220,7 +220,7 @@ public class LocalRepositoryServiceTest {
 
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(), repositoryDetails.getName())).thenReturn(Optional.empty());
 
-        DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> localService.editLocalRepositoryDetails(repositoryDetails.getOwnerUsername(), repositoryDetails.getName(), repositoryPojo));
+        DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> localService.editRepository(repositoryDetails.getOwnerUsername(), repositoryDetails.getName(), repositoryPojo));
         assertEquals("Incorrect username or repository name provided.", exception.getMessage());
     }
 
@@ -237,7 +237,7 @@ public class LocalRepositoryServiceTest {
                 .build();
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(), repositoryDetails.getName())).thenReturn(Optional.of(repositoryDetails));
 
-        localService.deleteLocalRepositoryDetails(repositoryDetails.getOwnerUsername(), repositoryDetails.getName());
+        localService.deleteRepository(repositoryDetails.getOwnerUsername(), repositoryDetails.getName());
 
         verify(repository, times(1)).delete(repositoryDetails);
     }
@@ -256,7 +256,7 @@ public class LocalRepositoryServiceTest {
 
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(), repositoryDetails.getName())).thenReturn(Optional.empty());
 
-        DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> localService.deleteLocalRepositoryDetails(repositoryDetails.getOwnerUsername(), repositoryDetails.getName()));
+        DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> localService.deleteRepository(repositoryDetails.getOwnerUsername(), repositoryDetails.getName()));
         assertEquals("Incorrect username or repository name provided.", exception.getMessage());
     }
 }

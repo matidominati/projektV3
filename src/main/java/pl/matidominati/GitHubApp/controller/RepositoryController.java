@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import pl.matidominati.GitHubApp.exception.message.ErrorMessage;
 import pl.matidominati.GitHubApp.model.dto.RepositoryResponseDto;
 import pl.matidominati.GitHubApp.model.pojo.RepositoryPojo;
-import pl.matidominati.GitHubApp.service.LocalRepositoryService;
+import pl.matidominati.GitHubApp.service.RepositoryService;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/local/repositories")
-public class LocalRepositoryController {
-    private final LocalRepositoryService localService;
+public class RepositoryController {
+    private final RepositoryService repositoryService;
 
     @Operation(summary = "Get local repository", tags = "Local repository")
     @ApiResponses(value = {
@@ -29,8 +29,8 @@ public class LocalRepositoryController {
                             schema = @Schema(implementation = ErrorMessage.class))})
     })
     @GetMapping("/{owner}/{repoName}")
-    public RepositoryResponseDto getLocalRepository(@PathVariable String owner, @PathVariable String repoName) {
-        return localService.getLocalRepositoryDetails(owner, repoName);
+    public RepositoryResponseDto getRepository(@PathVariable String owner, @PathVariable String repoName) {
+        return repositoryService.getRepository(owner, repoName);
     }
 
     @Operation(summary = "Save new repository", tags = "Local repository")
@@ -44,7 +44,7 @@ public class LocalRepositoryController {
     })
     @PostMapping("/{owner}/{repoName}")
     public RepositoryResponseDto saveRepository(@PathVariable String owner, @PathVariable String repoName) {
-        return localService.saveRepositoryDetails(owner, repoName);
+        return repositoryService.saveRepository(owner, repoName);
     }
     @Operation(summary = "Edit local repository", tags = "Local repository")
     @ApiResponses(value = {
@@ -56,12 +56,12 @@ public class LocalRepositoryController {
                             schema = @Schema(implementation = ErrorMessage.class))})
     })
     @PutMapping("/{owner}/{repoName}")
-    public RepositoryResponseDto editLocalRepository(@PathVariable String owner, @PathVariable String repoName,
-                                                     @RequestBody RepositoryPojo updatedDetails) {
-        return localService.editLocalRepositoryDetails(owner, repoName, updatedDetails);
+    public RepositoryResponseDto editRepository(@PathVariable String owner, @PathVariable String repoName,
+                                                @RequestBody RepositoryPojo updatedDetails) {
+        return repositoryService.editRepository(owner, repoName, updatedDetails);
     }
 
-    @Operation(summary = "Delete local repository from DB", tags = "Local repository")
+    @Operation(summary = "Delete repository", tags = "Local repository")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "404", description = "Data not found",
@@ -70,6 +70,6 @@ public class LocalRepositoryController {
     })
     @DeleteMapping("/{owner}/{repoName}")
     public void deleteRepository(@PathVariable String owner, @PathVariable String repoName){
-        localService.deleteLocalRepositoryDetails(owner, repoName);
+        repositoryService.deleteRepository(owner, repoName);
     }
 }

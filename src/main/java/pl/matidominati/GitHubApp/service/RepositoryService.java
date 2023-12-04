@@ -15,38 +15,31 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class LocalRepositoryService {
+public class RepositoryService {
     private final RepositoryMapper mapper;
     private final LocalRepository repository;
     private final GitHubService clientService;
 
     @Transactional
-    public RepositoryResponseDto saveRepositoryDetails(String owner, String repositoryName) {
+    public RepositoryResponseDto saveRepository(String owner, String repositoryName) {
         var repositoryPojo = clientService.convertClientRepositoryToPojo(owner, repositoryName);
         repository.findByOwnerUsernameAndRepositoryName(owner, repositoryName)
                 .ifPresent(existingRepository -> {
                     throw new DataAlreadyExistsException("This resource is in the database");
                 });
-        var localRepository = new RepositoryDetails();
-        localRepository.setDescription(repositoryPojo.getDescription());
-        localRepository.setCreatedAt(repositoryPojo.getCreatedAt());
-        localRepository.setStars(repositoryPojo.getStars());
-        localRepository.setCloneUrl(repositoryPojo.getCloneUrl());
-        localRepository.setFullName(repositoryPojo.getFullName());
-        localRepository.setName(repositoryPojo.getName());
-        localRepository.setOwnerUsername(repositoryPojo.getOwnerUsername());
+        var localRepository = createRepository(repositoryPojo);
         repository.save(localRepository);
         return mapper.mapRepositoryDetailsToResponseDto(localRepository);
     }
 
-    public RepositoryResponseDto getLocalRepositoryDetails(String owner, String repositoryName) {
+    public RepositoryResponseDto getRepository(String owner, String repositoryName) {
         var localRepository = repository.findByOwnerUsernameAndRepositoryName(owner, repositoryName)
                 .orElseThrow(() -> new DataNotFoundException("Incorrect username or repository name provided."));
         return mapper.mapRepositoryDetailsToResponseDto(localRepository);
     }
 
     @Transactional
-    public RepositoryResponseDto editLocalRepositoryDetails(String owner, String repositoryName, RepositoryPojo updatedRepository) {
+    public RepositoryResponseDto editRepository(String owner, String repositoryName, RepositoryPojo updatedRepository) {
         var originalRepository = getDetails(owner, repositoryName);
         updateRepositoryDetails(originalRepository, updatedRepository);
         var repoToSave = mapper.mapPojoToRepositoryDetails(originalRepository);
@@ -55,7 +48,7 @@ public class LocalRepositoryService {
     }
 
     @Transactional
-    public void deleteLocalRepositoryDetails(String owner, String repositoryName) {
+    public void deleteRepository(String owner, String repositoryName) {
         RepositoryDetails repositoryToDelete = repository.findByOwnerUsernameAndRepositoryName(owner, repositoryName)
                 .orElseThrow(() -> new DataNotFoundException("Incorrect username or repository name provided."));
         repository.delete(repositoryToDelete);
@@ -83,5 +76,17 @@ public class LocalRepositoryService {
         if (updatedRepository.getCreatedAt() != null && !updatedRepository.getCreatedAt().isAfter(LocalDateTime.now())) {
             originalRepository.setCreatedAt(updatedRepository.getCreatedAt());
         }
+    }
+
+    public static RepositoryDetails createRepository(RepositoryPojo repositoryPojo) {
+        var localRepository = new RepositoryDetails();
+        localRepository.setDescription(repositoryPojo.getDescription());
+        localRepository.setCreatedAt(repositoryPojo.getCreatedAt());
+        localRepository.setStars(repositoryPojo.getStars());
+        localRepository.setCloneUrl(repositoryPojo.getCloneUrl());
+        localRepository.setFullName(repositoryPojo.getFullName());
+        localRepository.setName(repositoryPojo.getName());
+        localRepository.setOwnerUsername(repositoryPojo.getOwnerUsername());
+        return localRepository;
     }
 }

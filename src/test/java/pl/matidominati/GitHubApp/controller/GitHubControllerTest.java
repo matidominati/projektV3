@@ -28,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GitHubControllerTest {
-
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -38,22 +37,10 @@ public class GitHubControllerTest {
 
     @Test
     void shouldGetGitHubRepositoryDetails() throws Exception {
-        GitHubRepository gitHubRepository = GitHubRepository.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc CCCCC")
-                .createdAt(LocalDateTime.of(2015, 10, 10, 10, 10))
-                .cloneUrl("bbbb.com")
-                .id(1L)
-                .gitHubOwner(GitHubOwner.builder()
-                        .id(1L)
-                        .login("user")
-                        .build())
-                .build();
+        GitHubRepository gitHubRepository = createGitHubRepository();
 
         when(client.getRepositoryDetails(any(), any())).thenReturn(Optional.ofNullable(gitHubRepository));
 
-        assert gitHubRepository != null;
         MvcResult mvcResult = mockMvc.perform(get("/repositories/{owner}/{repoName}", gitHubRepository.getGitHubOwner().getLogin(), gitHubRepository.getName()))
                 .andDo(print())
                 .andExpect(status().is(200))
@@ -71,33 +58,14 @@ public class GitHubControllerTest {
     @Test
     void shouldGetClientRepositoriesList() throws Exception {
 
-        GitHubOwner gitHubOwner = new GitHubOwner(1L, "user");
-
-        GitHubRepository gitHubRepositoryA = GitHubRepository.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc CCCCC")
-                .createdAt(LocalDateTime.of(2015, 10, 10, 10, 10))
-                .cloneUrl("bbbb.com")
-                .id(1L)
-                .gitHubOwner(gitHubOwner)
-                .build();
-
-        GitHubRepository gitHubRepositoryB = GitHubRepository.builder()
-                .name("aaaaappp")
-                .fullName("bbbbbpp")
-                .description("cccccppp CCCCC")
-                .createdAt(LocalDateTime.of(2015, 9, 10, 10, 10))
-                .cloneUrl("bbbbppp.com")
-                .id(2L)
-                .gitHubOwner(gitHubOwner)
-                .build();
+        GitHubRepository gitHubRepositoryA = createGitHubRepository();
+        GitHubRepository gitHubRepositoryB = createGitHubRepository();
 
         List<GitHubRepository> gitHubRepositories = List.of(gitHubRepositoryA, gitHubRepositoryB);
 
         when(client.getRepositories(any())).thenReturn(gitHubRepositories);
 
-        MvcResult mvcResult = mockMvc.perform(get("/repositories/{owner}",  gitHubOwner.getLogin()))
+        MvcResult mvcResult = mockMvc.perform(get("/repositories/{owner}", gitHubRepositoryA.getGitHubOwner().getLogin()))
                 .andDo(print())
                 .andExpect(status().is(200))
                 .andReturn();
@@ -107,5 +75,20 @@ public class GitHubControllerTest {
 
         assertThat(responseList).isNotNull();
         assertThat(responseList).hasSize(2);
+    }
+
+    private static GitHubRepository createGitHubRepository() {
+        return GitHubRepository.builder()
+                .name("aaaaa")
+                .fullName("bbbbb")
+                .description("ccccc CCCCC")
+                .createdAt(LocalDateTime.of(2015, 10, 10, 10, 10))
+                .cloneUrl("bbbb.com")
+                .id(1L)
+                .gitHubOwner(GitHubOwner.builder()
+                        .id(1L)
+                        .login("user")
+                        .build())
+                .build();
     }
 }

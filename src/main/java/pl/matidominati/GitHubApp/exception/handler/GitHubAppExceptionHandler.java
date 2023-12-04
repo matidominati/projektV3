@@ -22,6 +22,7 @@ public class GitHubAppExceptionHandler {
                 .timestamp(ZonedDateTime.now())
                 .build());
     }
+
     @ExceptionHandler(value
             = DataAlreadyExistsException.class)
     public ResponseEntity<Object> handleGitHubException(DataAlreadyExistsException ex) {

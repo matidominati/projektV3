@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class LocalRepositoryControllerTest {
+public class RepositoryControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -43,15 +43,7 @@ public class LocalRepositoryControllerTest {
     @Test
     @Transactional
     void shouldGetLocalRepository() throws Exception {
-        RepositoryDetails newRepositoryDetails = RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername("user")
-                .build();
+        RepositoryDetails newRepositoryDetails = createRepositoryDetails();
         localRepository.save(newRepositoryDetails);
 
         MvcResult mvcResult = mockMvc.perform(get("/local/repositories/{owner}/{repoName}", newRepositoryDetails.getOwnerUsername(), newRepositoryDetails.getName()))
@@ -72,28 +64,11 @@ public class LocalRepositoryControllerTest {
     @Test
     @Transactional
     void shouldSaveNewRepository() throws Exception {
-        GitHubOwner gitHubOwner = new GitHubOwner(1L, "user");
-        GitHubRepository gitHubRepository = GitHubRepository.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stargazersCount(5)
-                .gitHubOwner(gitHubOwner)
-                .build();
+        GitHubRepository gitHubRepository = createGitHubRepository();
 
         when(gitHubClient.getRepositoryDetails(any(), any())).thenReturn(Optional.ofNullable(gitHubRepository));
 
-        RepositoryDetails newRepositoryDetails = RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername(gitHubOwner.getLogin())
-                .build();
+        RepositoryDetails newRepositoryDetails = createRepositoryDetails();
 
         MvcResult mvcResult = mockMvc.perform(post("/local/repositories/{owner}/{repoName}", newRepositoryDetails.getOwnerUsername(), newRepositoryDetails.getName()))
                 .andDo(print())
@@ -112,24 +87,9 @@ public class LocalRepositoryControllerTest {
     @Test
     @Transactional
     void shouldEditLocalRepository() throws Exception {
-        RepositoryDetails originalRepositoryDetails = RepositoryDetails.builder()
-                .name("aaaaaa")
-                .fullName("bbbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername("user")
-                .build();
+        RepositoryDetails originalRepositoryDetails = createRepositoryDetails();
         localRepository.save(originalRepositoryDetails);
-
-        RepositoryPojo updatedRepositoryDetails = RepositoryPojo.builder()
-                .fullName("XXXXX")
-                .description("DDDDD")
-                .cloneUrl("YYY.com")
-                .createdAt(LocalDateTime.of(2020, 11, 23, 10, 19, 22))
-                .stars(100)
-                .build();
+        RepositoryPojo updatedRepositoryDetails = createUpdatedRepositoryDetails();
 
         MvcResult mvcResult = mockMvc.perform(put("/local/repositories/{owner}/{repoName}", originalRepositoryDetails.getOwnerUsername(), originalRepositoryDetails.getName())
                         .content(objectMapper.writeValueAsString(updatedRepositoryDetails))
@@ -150,7 +110,16 @@ public class LocalRepositoryControllerTest {
     @Test
     @Transactional
     void shouldDeleteRepository() throws Exception {
-        RepositoryDetails newRepositoryDetails = RepositoryDetails.builder()
+        RepositoryDetails newRepositoryDetails = createRepositoryDetails();
+        localRepository.save(newRepositoryDetails);
+
+        mockMvc.perform(delete("/local/repositories/{owner}/{repoName}", newRepositoryDetails.getOwnerUsername(), newRepositoryDetails.getName()))
+                .andDo(print())
+                .andExpect(status().is(200));
+    }
+
+    private static RepositoryDetails createRepositoryDetails() {
+        return RepositoryDetails.builder()
                 .name("aaaaa")
                 .fullName("bbbbb")
                 .description("ccccc")
@@ -159,10 +128,30 @@ public class LocalRepositoryControllerTest {
                 .stars(5)
                 .ownerUsername("user")
                 .build();
-        localRepository.save(newRepositoryDetails);
+    }
 
-        mockMvc.perform(delete("/local/repositories/{owner}/{repoName}", newRepositoryDetails.getOwnerUsername(), newRepositoryDetails.getName()))
-                .andDo(print())
-                .andExpect(status().is(200));
+    private static RepositoryPojo createUpdatedRepositoryDetails() {
+        return RepositoryPojo.builder()
+                .fullName("XXXXX")
+                .description("DDDDD")
+                .cloneUrl("YYY.com")
+                .createdAt(LocalDateTime.of(2020, 11, 23, 10, 19, 22))
+                .stars(100)
+                .build();
+    }
+
+    private static GitHubRepository createGitHubRepository() {
+        return GitHubRepository.builder()
+                .name("aaaaa")
+                .fullName("bbbbb")
+                .description("ccccc CCCCC")
+                .createdAt(LocalDateTime.of(2015, 10, 10, 10, 10))
+                .cloneUrl("bbbb.com")
+                .id(1L)
+                .gitHubOwner(GitHubOwner.builder()
+                        .id(1L)
+                        .login("user")
+                        .build())
+                .build();
     }
 }

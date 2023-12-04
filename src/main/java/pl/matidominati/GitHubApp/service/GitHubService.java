@@ -18,23 +18,23 @@ public class GitHubService {
     private final GitHubClient client;
     private final RepositoryMapper mapper;
 
-
     public RepositoryResponseDto getClientRepositoryDetails(String owner, String repositoryName) {
         RepositoryPojo repositoryPojo = convertClientRepositoryToPojo(owner, repositoryName);
         return mapper.mapPojoToDto(repositoryPojo);
     }
 
     public List<RepositoryResponseDto> getClientRepositories(String owner) {
+        List<RepositoryPojo> repositoryPojos;
         try {
-            List<RepositoryPojo> repositoryPojos = client.getRepositories(owner).stream()
+            repositoryPojos = client.getRepositories(owner).stream()
                     .map(mapper::mapGitHubRepositoryToPojo)
-                    .toList();
-            return repositoryPojos.stream()
-                    .map(mapper::mapPojoToDto)
                     .toList();
         } catch (FeignException.NotFound e) {
             throw new DataNotFoundException("User not found");
         }
+        return repositoryPojos.stream()
+                .map(mapper::mapPojoToDto)
+                .toList();
     }
 
     public RepositoryPojo convertClientRepositoryToPojo(String owner, String repositoryName) {
@@ -46,6 +46,4 @@ public class GitHubService {
             throw new DataNotFoundException("Repository not found");
         }
     }
-
-
 }
