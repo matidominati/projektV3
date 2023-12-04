@@ -15,7 +15,6 @@ import pl.matidominati.GitHubApp.client.model.GitHubRepository;
 import pl.matidominati.GitHubApp.model.dto.RepositoryResponseDto;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,6 +53,7 @@ public class GitHubControllerTest {
 
         when(client.getRepositoryDetails(any(), any())).thenReturn(Optional.ofNullable(gitHubRepository));
 
+        assert gitHubRepository != null;
         MvcResult mvcResult = mockMvc.perform(get("/repositories/{owner}/{repoName}", gitHubRepository.getGitHubOwner().getLogin(), gitHubRepository.getName()))
                 .andDo(print())
                 .andExpect(status().is(200))
