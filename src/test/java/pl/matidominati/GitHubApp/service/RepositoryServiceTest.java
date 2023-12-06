@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.matidominati.GitHubApp.client.model.GitHubOwner;
 import pl.matidominati.GitHubApp.client.model.GitHubRepository;
 import pl.matidominati.GitHubApp.exception.DataAlreadyExistsException;
 import pl.matidominati.GitHubApp.exception.DataNotFoundException;
@@ -21,6 +20,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static pl.matidominati.GitHubApp.service.DataFactory.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RepositoryServiceTest {
@@ -40,28 +40,8 @@ public class RepositoryServiceTest {
 
     @Test
     void saveRepositoryDetails_DataNotExists_ReturnsRepositoryResponseDto() {
-        GitHubOwner gitHubOwner = GitHubOwner.builder()
-                .login("qqqqq")
-                .id(1L)
-                .build();
-        GitHubRepository gitHubRepository = GitHubRepository.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .gitHubOwner(gitHubOwner)
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .id(1L)
-                .stargazersCount(5)
-                .build();
-        RepositoryPojo repositoryPojo = RepositoryPojo.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .build();
+        GitHubRepository gitHubRepository = createGitHubRepository();
+        RepositoryPojo repositoryPojo = createRepositoryPojo();
         RepositoryResponseDto responseDto = RepositoryResponseDto.builder()
                 .fullName("bbbbb")
                 .description("ccccc")
@@ -69,22 +49,14 @@ public class RepositoryServiceTest {
                 .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
                 .stars(5)
                 .build();
-        RepositoryDetails repositoryDetails = RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername(gitHubOwner.getLogin())
-                .build();
+        RepositoryDetails repositoryDetails = createRepositoryDetails();
 
-        when(clientService.convertClientRepositoryToPojo(gitHubOwner.getLogin(), gitHubRepository.getName())).thenReturn(repositoryPojo);
-        when(repository.findByOwnerUsernameAndRepositoryName(gitHubOwner.getLogin(), gitHubRepository.getName())).thenReturn(Optional.empty());
+        when(clientService.convertClientRepositoryToPojo(repositoryDetails.getOwnerUsername(), gitHubRepository.getName())).thenReturn(repositoryPojo);
+        when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(), gitHubRepository.getName())).thenReturn(Optional.empty());
         when(repository.save(any(RepositoryDetails.class))).thenReturn(repositoryDetails);
         when(mapper.mapRepositoryDetailsToResponseDto(any(RepositoryDetails.class))).thenReturn(responseDto);
 
-        var resultDto = localService.saveRepository(gitHubOwner.getLogin(), gitHubRepository.getName());
+        var resultDto = localService.saveRepository(repositoryDetails.getOwnerUsername(), gitHubRepository.getName());
 
         assertEquals(resultDto.getFullName(), repositoryDetails.getFullName());
         assertEquals(resultDto.getDescription(), repositoryDetails.getDescription());
@@ -96,15 +68,7 @@ public class RepositoryServiceTest {
 
     @Test
     void saveRepositoryDetails_DataExists_ThrowDataAlreadyExistsException() {
-        RepositoryDetails repositoryDetails = RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername("qqqqq")
-                .build();
+        RepositoryDetails repositoryDetails = createRepositoryDetails();
 
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(),
                 repositoryDetails.getName())).thenReturn(Optional.of(repositoryDetails));
@@ -115,15 +79,7 @@ public class RepositoryServiceTest {
 
     @Test
     void getLocalRepositoryDetails_DataExists_ReturnRepositoryResponseDto() {
-        RepositoryDetails repositoryDetails = RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername("qqqqq")
-                .build();
+        RepositoryDetails repositoryDetails = createRepositoryDetails();
         RepositoryResponseDto responseDto = RepositoryResponseDto.builder()
                 .fullName("bbbbb")
                 .description("ccccc")
@@ -146,34 +102,17 @@ public class RepositoryServiceTest {
 
     @Test
     void getLocalRepositoryDetails_DataNotExists_ThrowDataNotFoundException() {
-        RepositoryDetails repositoryDetails = RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername("qqqqq")
-                .build();
+        RepositoryDetails repositoryDetails = createRepositoryDetails();
 
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(), repositoryDetails.getName())).thenReturn(Optional.empty());
 
         DataNotFoundException exception = assertThrows(DataNotFoundException.class, () -> localService.getRepository(repositoryDetails.getOwnerUsername(), repositoryDetails.getName()));
-
         assertEquals("Incorrect username or repository name provided.", exception.getMessage());
     }
 
     @Test
     void editLocalRepositoryDetails_DataExists_ReturnUpdatedRepositoryResponseDto() {
-        RepositoryDetails originalRepository = RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername("qqqqq")
-                .build();
+        RepositoryDetails originalRepository = createRepositoryDetails();
         RepositoryPojo repositoryPojo = RepositoryPojo.builder()
                 .name("aaaaa")
                 .fullName("B2")
@@ -226,33 +165,17 @@ public class RepositoryServiceTest {
 
     @Test
     void deleteLocalRepositoryDetails_RepositoryExists_DeletedRepository() {
-        RepositoryDetails repositoryDetails = RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername("qqqqq")
-                .build();
+        RepositoryDetails repositoryDetails = createRepositoryDetails();
+
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(), repositoryDetails.getName())).thenReturn(Optional.of(repositoryDetails));
 
         localService.deleteRepository(repositoryDetails.getOwnerUsername(), repositoryDetails.getName());
-
         verify(repository, times(1)).delete(repositoryDetails);
     }
 
     @Test
     void deleteLocalRepositoryDetails_RepositoryDoesNotExist_ThrowsDataNotFoundException() {
-        RepositoryDetails repositoryDetails = RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername("qqqqq")
-                .build();
+        RepositoryDetails repositoryDetails = createRepositoryDetails();
 
         when(repository.findByOwnerUsernameAndRepositoryName(repositoryDetails.getOwnerUsername(), repositoryDetails.getName())).thenReturn(Optional.empty());
 

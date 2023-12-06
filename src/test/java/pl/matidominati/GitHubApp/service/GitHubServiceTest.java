@@ -14,7 +14,6 @@ import pl.matidominati.GitHubApp.exception.DataNotFoundException;
 import pl.matidominati.GitHubApp.mapper.RepositoryMapper;
 import pl.matidominati.GitHubApp.model.dto.RepositoryResponseDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static pl.matidominati.GitHubApp.service.DataFactory.createGitHubRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class GitHubServiceTest {
@@ -39,26 +39,13 @@ public class GitHubServiceTest {
 
     @Test
     void getClientRepositoryDetails_ValidOwnerAndRepository_ReturnsClientRepositoryDetails() {
-        GitHubOwner gitHubOwner = GitHubOwner.builder()
-                .login("qqqqq")
-                .id(1L)
-                .build();
-        GitHubRepository gitHubRepository = GitHubRepository.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .gitHubOwner(gitHubOwner)
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.now().minusDays(5))
-                .id(1L)
-                .stargazersCount(5)
-                .build();
+        GitHubRepository gitHubRepository = createGitHubRepository();
 
-        when(client.getRepositoryDetails(gitHubOwner.getLogin(), gitHubRepository.getName())).thenReturn(Optional.of(gitHubRepository));
+        when(client.getRepositoryDetails(gitHubRepository.getGitHubOwner().getLogin(), gitHubRepository.getName())).thenReturn(Optional.of(gitHubRepository));
         var expectedPojo = mapper.mapGitHubRepositoryToPojo(gitHubRepository);
         var expectedDto = mapper.mapPojoToDto(expectedPojo);
 
-        RepositoryResponseDto resultDto = service.getClientRepositoryDetails(gitHubOwner.getLogin(), gitHubRepository.getName());
+        RepositoryResponseDto resultDto = service.getClientRepositoryDetails(gitHubRepository.getGitHubOwner().getLogin(), gitHubRepository.getName());
 
         assertEquals(resultDto.getFullName(), expectedDto.getFullName());
         assertEquals(resultDto.getCloneUrl(), expectedDto.getCloneUrl());
@@ -66,53 +53,28 @@ public class GitHubServiceTest {
         assertEquals(resultDto.getStars(), expectedDto.getStars());
         assertEquals(resultDto.getCreatedAt(), expectedDto.getCreatedAt());
 
-        verify(client).getRepositoryDetails(gitHubOwner.getLogin(), gitHubRepository.getName());
+        verify(client).getRepositoryDetails(gitHubRepository.getGitHubOwner().getLogin(), gitHubRepository.getName());
     }
 
     @Test
     void getClientRepositoryDetails_InvalidOwnerOrRepository_ThrowsDataNotFoundException() {
-        GitHubOwner gitHubOwner = GitHubOwner.builder()
-                .login("qqqqq")
-                .id(1L)
-                .build();
-        GitHubRepository gitHubRepository = GitHubRepository.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .gitHubOwner(gitHubOwner)
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.now().minusDays(5))
-                .id(1L)
-                .stargazersCount(5)
-                .build();
+        GitHubRepository gitHubRepository = createGitHubRepository();
 
-        when(client.getRepositoryDetails(gitHubOwner.getLogin(), gitHubRepository.getName()))
+        when(client.getRepositoryDetails(gitHubRepository.getGitHubOwner().getLogin(), gitHubRepository.getName()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(DataNotFoundException.class, () -> service.convertClientRepositoryToPojo(gitHubOwner.getLogin(), gitHubRepository.getName()));
-        verify(client).getRepositoryDetails(gitHubOwner.getLogin(), gitHubRepository.getName());
+        assertThrows(DataNotFoundException.class, () -> service.convertClientRepositoryToPojo(gitHubRepository.getGitHubOwner().getLogin(), gitHubRepository.getName()));
+        verify(client).getRepositoryDetails(gitHubRepository.getGitHubOwner().getLogin(), gitHubRepository.getName());
     }
 
     @Test
     void getClientRepositories_ValidUsername_ReturnsRepositoryList() {
-        GitHubOwner gitHubOwner = GitHubOwner.builder()
-                .login("qqqqq")
-                .id(1L)
-                .build();
-        GitHubRepository gitHubRepository = GitHubRepository.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .gitHubOwner(gitHubOwner)
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.now().minusDays(5))
-                .id(1L)
-                .stargazersCount(5)
-                .build();
+        GitHubRepository gitHubRepository = createGitHubRepository();
         List<GitHubRepository> gitHubRepositories = List.of(gitHubRepository, gitHubRepository);
-        when(client.getRepositories(gitHubOwner.getLogin())).thenReturn(gitHubRepositories);
 
-        List<RepositoryResponseDto> resultDtos = service.getClientRepositories(gitHubOwner.getLogin());
+        when(client.getRepositories(gitHubRepository.getGitHubOwner().getLogin())).thenReturn(gitHubRepositories);
+
+        List<RepositoryResponseDto> resultDtos = service.getClientRepositories(gitHubRepository.getGitHubOwner().getLogin());
 
         assertEquals(resultDtos.size(), gitHubRepositories.size());
     }

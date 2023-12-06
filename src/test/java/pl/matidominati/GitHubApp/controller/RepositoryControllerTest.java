@@ -11,14 +11,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import pl.matidominati.GitHubApp.client.GitHubClient;
-import pl.matidominati.GitHubApp.client.model.GitHubOwner;
 import pl.matidominati.GitHubApp.client.model.GitHubRepository;
 import pl.matidominati.GitHubApp.model.dto.RepositoryResponseDto;
 import pl.matidominati.GitHubApp.model.entity.RepositoryDetails;
 import pl.matidominati.GitHubApp.model.pojo.RepositoryPojo;
 import pl.matidominati.GitHubApp.repository.LocalRepository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +25,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static pl.matidominati.GitHubApp.controller.DataFactory.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -116,43 +115,5 @@ public class RepositoryControllerTest {
         mockMvc.perform(delete("/local/repositories/{owner}/{repoName}", newRepositoryDetails.getOwnerUsername(), newRepositoryDetails.getName()))
                 .andDo(print())
                 .andExpect(status().is(200));
-    }
-
-    private static RepositoryDetails createRepositoryDetails() {
-        return RepositoryDetails.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stars(5)
-                .ownerUsername("user")
-                .build();
-    }
-
-    private static RepositoryPojo createUpdatedRepositoryDetails() {
-        return RepositoryPojo.builder()
-                .fullName("XXXXX")
-                .description("DDDDD")
-                .cloneUrl("YYY.com")
-                .createdAt(LocalDateTime.of(2020, 11, 23, 10, 19, 22))
-                .stars(100)
-                .build();
-    }
-
-    private static GitHubRepository createGitHubRepository() {
-        return GitHubRepository.builder()
-                .name("aaaaa")
-                .fullName("bbbbb")
-                .description("ccccc")
-                .cloneUrl("zzz.com")
-                .createdAt(LocalDateTime.of(2022, 11, 23, 10, 19, 22))
-                .stargazersCount(5)
-                .id(1L)
-                .gitHubOwner(GitHubOwner.builder()
-                        .id(1L)
-                        .login("user")
-                        .build())
-                .build();
     }
 }
