@@ -17,8 +17,6 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RepositoryDetails {
-    @NotNull
-    @NotEmpty
     @Id
     private String name;
     @Id
@@ -28,19 +26,4 @@ public class RepositoryDetails {
     private String cloneUrl;
     private int stars;
     private LocalDateTime createdAt;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RepositoryDetails that = (RepositoryDetails) o;
-        return name != null && ownerUsername != null
-                && Objects.equals(name, that.name)
-                && Objects.equals(ownerUsername,that.ownerUsername);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, ownerUsername);
-    }
 }
